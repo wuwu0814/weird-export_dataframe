@@ -1,0 +1,28 @@
+import pandas as pd 
+import numpy as np
+from pandas import DataFrame
+from datetime import datetime
+import matplotlib.dates as mdates
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv('export_dataframe.csv') 
+
+df['ratio'] = df['sbi'].astype('int')/ df['tot'].astype('int')
+df['dayofweek'] = pd.to_datetime(df['time']).dt.dayofweek
+df['weekend'] = ((df['dayofweek']) // 5 == 1).astype(int)
+ts = pd.DatetimeIndex(df['time'])
+df['hours'] = ts.hour.astype(int)
+
+# 將時間作為索引
+df = df.set_index('time')
+
+df = pd.DataFrame(df)
+end_date1 = '2021/05/16'
+df['cov19'] = df.index <= end_date1
+df['cov19'] = df['cov19'].replace({True: 'before', False: 'after'})
+
+df['car_dis'] = df.ratio < 0.1
+df['car_dis'] = df['car_dis'].replace({True: 1, False: 0})
+df['缺位'] = df.ratio > 0.9
+df['缺位'] = df['缺位'].replace({True: 1, False: 0})
